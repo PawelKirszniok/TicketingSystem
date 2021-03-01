@@ -22,6 +22,7 @@ class DatabaseService:
         self.session = sessionmaker(bind=engine)()
 
     def get_user(self, id: int) -> User:
+
         try:
             search = self.session.query(User).filter_by(id=id).all()
         except SQLAlchemyError:
@@ -34,6 +35,7 @@ class DatabaseService:
             return None
 
     def get_ticket(self, id: int) -> Ticket:
+
         try:
             search = self.session.query(Ticket).filter_by(id=id).all()
         except SQLAlchemyError:
@@ -46,6 +48,7 @@ class DatabaseService:
             return None
 
     def get_post(self, id: int) -> Post:
+
         try:
             search = self.session.query(Post).filter_by(id=id).all()
         except SQLAlchemyError:
@@ -133,3 +136,43 @@ class DatabaseService:
                 return None
 
         return search
+
+    def save_user(self, user: User):
+
+        try:
+            self.session.add(user)
+            self.session.commit()
+        except SQLAlchemyError:
+            self.session.rollback()
+            raise
+
+    def save_ticket(self, ticket: Ticket):
+
+        try:
+            self.session.add(ticket)
+            self.session.commit()
+        except SQLAlchemyError:
+            self.session.rollback()
+            raise
+
+    def save_post(self, post: Post):
+
+        try:
+            self.session.add(post)
+            self.session.commit()
+        except SQLAlchemyError:
+            self.session.rollback()
+            raise
+
+    def save_relationship(self, user_id, ticket_id, role):
+
+        rel = Ticket_to_User(user_id, ticket_id, role)
+
+        try:
+            self.session.add(rel)
+            self.session.commit()
+
+        except SQLAlchemyError:
+            self.session.rollback()
+            raise
+
