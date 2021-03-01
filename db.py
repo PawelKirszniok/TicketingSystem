@@ -56,3 +56,80 @@ class DatabaseService:
             return search[0]
         else:
             return None
+
+    def search_ticket(self, user: int, role: str = None) -> list[Ticket]:
+
+        if role:
+            try:
+                search = self.session.query(Ticket_to_User).filer_by(user_id=user, user_role=role)
+            except SQLAlchemyError:
+                self.session.rollback()
+                return None
+
+        else:
+            try:
+                search = self.session.query(Ticket_to_User).filer_by(user_id=user)
+            except SQLAlchemyError:
+                self.session.rollback()
+                return None
+
+        result = []
+        for item in search:
+            if item.ticket_id not in result:
+                result.append(item.ticket_id)
+
+        search_result = []
+        for id in result:
+            tmp = self.get_ticket(id)
+            if tmp:
+                search_result.append(tmp)
+
+            # here should be some extra error handling or logging if we got a none result
+
+        return search_result
+
+    def search_user(self, ticket: int) -> list[User]:
+
+        try:
+            search = self.session.query(Ticket_to_User).filer_by(ticket_id=ticket)
+        except SQLAlchemyError:
+            self.session.rollback()
+            return None
+
+        result = []
+        for item in search:
+            if item.user_id not in result:
+                result.append(item.user_id)
+
+        search_result = []
+        for id in result:
+            tmp = self.get_user(id)
+            if tmp:
+                search_result.append(tmp)
+
+            # here should be some extra error handling or logging if we got a none result
+
+        return search_result
+
+    def search_post(self, user: int = None, ticket: int = None) -> list[Post]:
+        """
+        Get a list of posts of a particular user or belonging to a ticket. Use only one of the modes at the time.
+        """
+        if ticket and user:
+            return None
+
+        if ticket:
+            try:
+                search = self.session.query(Post).filer_by(ticket_id=ticket)
+            except SQLAlchemyError:
+                self.session.rollback()
+                return None
+
+        else:
+            try:
+                search = self.session.query(Post).filer_by(author_id=user)
+            except SQLAlchemyError:
+                self.session.rollback()
+                return None
+
+        return search
