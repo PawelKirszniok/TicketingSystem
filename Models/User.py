@@ -16,6 +16,15 @@ class User(Base):
     position = Column(String, nullable=False)
     email = Column(String, nullable=False)
     posts = relationship("Post")
+    tickets = relationship("Ticket_to_user")
+
+    def __init__(self, login, password, name, position, email, picture='default.jpg'):
+        self.login = login
+        self.password = password
+        self.name = name
+        self.position = position
+        self.email = email
+        self.picture = picture
 
 
 
