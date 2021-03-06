@@ -1,10 +1,10 @@
 from configparser import ConfigParser
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from.Models.User import User
-from.Models.Ticket import Ticket
-from.Models.Post import Post
-from.Models.Ticket_to_User import Ticket_to_User
+from Models.User import User
+from Models.Ticket import Ticket
+from Models.Post import Post
+from Models.Ticket_to_User import Ticket_to_User
 from exceptions import exception_handler
 
 
@@ -52,7 +52,7 @@ class DatabaseService:
             return None
 
     @exception_handler
-    def search_ticket(self, user: int, role: str = None) -> list[Ticket]:
+    def search_ticket(self, user: int, role: str = None) -> list:
 
         if role:
             search = self.session.query(Ticket_to_User).filer_by(user_id=user, user_role=role)
@@ -74,27 +74,25 @@ class DatabaseService:
         return search_result
 
     @exception_handler
-    def search_user(self, ticket: int) -> list[User]:
+    def search_user(self, ticket: int) -> list:
 
         search = self.session.query(Ticket_to_User).filer_by(ticket_id=ticket)
 
         result = []
         for item in search:
             if item.user_id not in result:
-                result.append(item.user_id)
+                result.append((item.user_id, item.role))
 
         search_result = []
         for id in result:
-            tmp = self.get_user(id)
+            tmp = self.get_user(id[0])
             if tmp:
-                search_result.append(tmp)
-
-            # here should be some extra error handling or logging if we got a none result
+                search_result.append((tmp, id[1]))
 
         return search_result
 
     @exception_handler
-    def search_post(self, user: int = None, ticket: int = None) -> list[Post]:
+    def search_post(self, user: int = None, ticket: int = None) -> list:
         """
         Get a list of posts of a particular user or belonging to a ticket. Use only one of the modes at the time.
         """
