@@ -17,3 +17,4 @@ class Ticket_to_User(Base):
         self.user_id = user
         self.ticket_id = ticket
         self.user_role = role
+
