@@ -9,10 +9,10 @@ class Ticket(Base):
 
     __tablename__ = "ticket"
     id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(String, nullable=False)
-    posts = relationship("Post")
-    users = relationship("Ticket_to_user")
-    status = Column(String, nullable=False)
+    title = Column(String(100), nullable=False)
+    posts = relationship("post")
+    users = relationship("ticket_to_user")
+    status = Column(String(30), nullable=False)
     deadline = Column(DateTime(timezone=True))
 
 

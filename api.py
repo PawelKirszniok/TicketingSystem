@@ -1,7 +1,8 @@
-from flask import Flask
+from flask import Flask, request
 from flask_restful import Resource, Api, abort
 from db import DatabaseService
 from Verification import verify_code
+
 
 
 import jsonpickle
@@ -80,11 +81,12 @@ class GetPosts(Resource):
 
 class SaveUser(Resource):
 
-    def post(self, raw_data):
-        data = jsonpickle.decode(raw_data)
+    def post(self):
+        raw_data = request.get_json(force=True, silent=True)
+
 
         # Validation
-        if not verify_code(data['secretkey']):
+        if not verify_code(raw_data['secretkey']):
             return abort(403, "Incorrect authorization, access denied")
 
         payload = data['payload']

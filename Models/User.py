@@ -9,14 +9,14 @@ class User(Base):
 
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    login = Column(String, nullable=False)
-    password = Column(String, nullable=False)
-    name = Column(String, nullable=False)
-    picture = Column(String, nullable=False, default='default.jpg')
-    position = Column(String, nullable=False)
-    email = Column(String, nullable=False)
-    posts = relationship("Post")
-    tickets = relationship("Ticket_to_user")
+    login = Column(String(50), nullable=False)
+    password = Column(String(50), nullable=False)
+    name = Column(String(100), nullable=False)
+    picture = Column(String(100), nullable=False, default='default.jpg')
+    position = Column(String(50), nullable=False)
+    email = Column(String(50), nullable=False)
+    posts = relationship("post")
+    tickets = relationship("ticket_to_user")
 
     def __init__(self, login, password, name, position, email, picture='default.jpg'):
         self.login = login
