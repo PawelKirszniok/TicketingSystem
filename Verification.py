@@ -4,7 +4,7 @@ from configparser import ConfigParser
 def verify_code(code: str) -> bool:
 
     config_object = ConfigParser()
-    config_object.read("config.ini")
+    config_object.read("TicketingBackground/TicketingSystem/config.ini")
 
     key = config_object['KEYS']['secretkey']
 

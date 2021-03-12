@@ -13,12 +13,13 @@ class DatabaseService:
     def __init__(self):
 
         config_object = ConfigParser()
-        config_object.read("config.ini")
+        config_object.read("TicketingBackground/TicketingSystem/config.ini")
 
         dbConfig = config_object['DATABASECONFIG']
         login_string = f"{dbConfig['prefix']}://{dbConfig['user']}:{dbConfig['password']}@{dbConfig['host']}/{dbConfig['dbname']}"
 
         engine = create_engine(login_string, pool_pre_ping=True)
+
         self.session = sessionmaker(bind=engine)()
 
     @exception_handler
