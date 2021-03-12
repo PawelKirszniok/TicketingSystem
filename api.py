@@ -5,6 +5,7 @@ from Verification import verify_code
 from Models.User import User
 from Models.Ticket import Ticket
 from Models.Post import Post
+import json
 
 
 app = Flask(__name__)
@@ -173,6 +174,57 @@ class SaveRelationship(Resource):
         return
 
 
+class ValidateUser(Resource):
+
+    def post(self):
+
+        data = request.get_json(force=True, silent=True)
+
+        # Validation
+        if not verify_code(data['secretkey']):
+            return abort(403, message="Incorrect authorization, access denied")
+
+        payload = data['payload']
+
+        if 'email' not in payload:
+            user_id, valid_password = ds.validate_user(payload['password'], login=payload['login'])
+            result = {'user_id': user_id, 'valid_password': valid_password}
+            return json.dumps(result)
+
+        elif 'login' not in payload:
+            user_id, valid_password = ds.validate_user(payload['password'], email=payload['email'])
+            result = {'user_id': user_id, 'valid_password': valid_password}
+            return json.dumps(result)
+
+        else:
+            user_id, valid_password = ds.validate_user(payload['password'], login=payload['login'], email=payload['email'])
+            result = {'user_id': user_id, 'valid_password': valid_password}
+            return json.dumps(result)
+
+
+class StrSearchUsers(Resource):
+
+    def post(self):
+
+        data = request.get_json(force=True, silent=True)
+
+        # Validation
+        if not verify_code(data['secretkey']):
+            return abort(403, message="Incorrect authorization, access denied")
+
+        payload = data['payload']
+
+        result = ds.str_search_user(payload['text'])
+        final = ""
+
+        for user in result:
+            final += user.to_json()
+            final += ','
+
+        final = final[:-1]
+        return '[' + final + ']'
+
+
 api.add_resource(GetUser, '/getuser')
 api.add_resource(GetUsers, '/getusers')
 api.add_resource(GetTickets, '/gettickets')
@@ -181,5 +233,7 @@ api.add_resource(SaveUser, '/saveuser')
 api.add_resource(SaveTicket, '/saveticket')
 api.add_resource(SavePost, '/savepost')
 api.add_resource(SaveRelationship, '/saverelation')
+api.add_resource(ValidateUser, '/validateuser')
+api.add_resource(StrSearchUsers, '/strsearchusers')
 
 

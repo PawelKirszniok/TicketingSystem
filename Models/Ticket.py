@@ -32,9 +32,9 @@ class Ticket(Base):
     def from_json(json_data):
 
         if 'id' in json_data:
-            result = Ticket(json_data['title'],json_data['deadline'], json_data['status'], json_data['id'])
+            result = Ticket(json_data['title'], json_data['deadline'], json_data['status'], json_data['id'])
         else:
-            result = Ticket(json_data['title'],json_data['deadline'], json_data['status'])
+            result = Ticket(json_data['title'], json_data['deadline'], json_data['status'])
 
         return result
 
