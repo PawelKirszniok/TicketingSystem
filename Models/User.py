@@ -1,6 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer
-from sqlalchemy.orm import relationship
 import json
 
 Base = declarative_base()
@@ -27,16 +26,18 @@ class User(Base):
 
     def to_json(self):
 
-        result = f'"id": "{self.id}", "login": "{self.login}", "password": "{self.password}", "name": "{self.name}", ' \
-                 f'"position": "{self.possition}", "email": "{self.email}", "picture": "{self.picture}"'
+        result = f' "login": "{self.login}", "password": "{self.password}", "name": "{self.name}", ' \
+                 f'"position": "{self.position}", "email": "{self.email}", "picture": "{self.picture}"'
 
         return '{' + result + '}'
 
     @staticmethod
     def from_json(json_data):
 
-        result = User(json_data['login'], json_data['password'], json_data['name'], json_data['position'],
-                      json_data['email'], json_data['picture'])
+        dict_data = json_data
+
+        result = User(dict_data['login'], dict_data['password'], dict_data['name'],dict_data['position'],
+                      dict_data['email'], dict_data['picture'])
 
         return result
 

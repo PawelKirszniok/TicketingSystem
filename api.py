@@ -2,10 +2,9 @@ from flask import Flask, request
 from flask_restful import Resource, Api, abort
 from db import DatabaseService
 from Verification import verify_code
-from .Models.User import User
+from Models.User import User
 from Models.Ticket import Ticket
 from Models.Post import Post
-from Models.Ticket_to_User import Ticket_to_User
 
 
 app = Flask(__name__)
@@ -15,7 +14,7 @@ ds = DatabaseService()
 
 class GetUser(Resource):
 
-    def post(self, raw_data):
+    def post(self):
 
         data = request.get_json(force=True, silent=True)
 
@@ -31,7 +30,7 @@ class GetUser(Resource):
 
 class GetTickets(Resource):
 
-    def post(self, raw_data):
+    def post(self):
 
         data = data = request.get_json(force=True, silent=True)
 
@@ -59,7 +58,7 @@ class GetTickets(Resource):
 
 class GetUsers(Resource):
 
-    def post(self, raw_data):
+    def post(self):
 
         data = request.get_json(force=True, silent=True)
 
@@ -82,7 +81,7 @@ class GetUsers(Resource):
 
 class GetPosts(Resource):
 
-    def post(self, raw_data):
+    def post(self):
 
         data = data = request.get_json(force=True, silent=True)
 
@@ -143,7 +142,7 @@ class SaveTicket(Resource):
 
 class SavePost(Resource):
 
-    def post(self, raw_data):
+    def post(self):
 
         data = request.get_json(force=True, silent=True)
 
@@ -160,7 +159,7 @@ class SavePost(Resource):
 
 class SaveRelationship(Resource):
 
-    def post(self, raw_data):
+    def post(self):
 
         data = request.get_json(force=True, silent=True)
 
