@@ -93,6 +93,43 @@ class DatabaseService:
         return search_result
 
     @exception_handler
+    def validate_user(self, password, login: str = None, email: str = None) -> (int, bool):
+
+        user_id = None
+        valid_password = False
+        if login:
+            search = self.session.query(User).filter_by(login=login).all()
+            if len(search):
+                user_id = search[0].id
+                if search[0].password == password:
+                    valid_password = True
+                    return user_id, valid_password
+
+        if email:
+            search = self.session.query(User).filter_by(email=email).all()
+            if len(search):
+                user_id = search[0].id
+                if search[0].password == password:
+                    valid_password = True
+                    return user_id, valid_password
+
+        return user_id, valid_password
+
+    @exception_handler
+    def str_search_user(self, text: str) -> list:
+
+        search_term = '*'+ text + '*'
+
+        search = self.session.query(User).filter_by(User.name.op('regexp')(search_term)).all()
+        search += self.session.query(User).filter_by(User.email.op('regexp')(search_term)).all()
+        search += self.session.query(User).filter_by(User.position.op('regexp')(search_term)).all()
+
+        if len(search):
+            return search[0]
+        else:
+            return None
+
+    @exception_handler
     def search_post(self, user: int = None, ticket: int = None) -> list:
         """
         Get a list of posts of a particular user or belonging to a ticket. Use only one of the modes at the time.
