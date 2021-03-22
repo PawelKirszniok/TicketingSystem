@@ -16,7 +16,7 @@ class DatabaseService:
         config_object.read("TicketingBackground/TicketingSystem/config.ini")
 
         dbConfig = config_object['DATABASECONFIG']
-        login_string = f"{dbConfig['prefix']}://{dbConfig['user']}:{dbConfig['password']}@{dbConfig['host']}/{dbConfig['dbname']}"
+        login_string = f"{dbConfig['prefix']}://{dbConfig['user']}:{dbConfig['password']}@{dbConfig['host']}/{dbConfig['dbname']}?charset=utf8"
 
         engine = create_engine(login_string, pool_pre_ping=True)
 
@@ -56,10 +56,10 @@ class DatabaseService:
     def search_ticket(self, user: int, role: str = None) -> list:
 
         if role:
-            search = self.session.query(Ticket_to_User).filer_by(user_id=user, user_role=role)
+            search = self.session.query(Ticket_to_User).filter_by(user_id=user, user_role=role)
 
         else:
-            search = self.session.query(Ticket_to_User).filer_by(user_id=user)
+            search = self.session.query(Ticket_to_User).filter_by(user_id=user)
 
         result = []
         for item in search:
@@ -77,7 +77,7 @@ class DatabaseService:
     @exception_handler
     def search_user(self, ticket: int) -> list:
 
-        search = self.session.query(Ticket_to_User).filer_by(ticket_id=ticket)
+        search = self.session.query(Ticket_to_User).filter_by(ticket_id=ticket)
 
         result = []
         for item in search:
@@ -130,18 +130,10 @@ class DatabaseService:
             return None
 
     @exception_handler
-    def search_post(self, user: int = None, ticket: int = None) -> list:
-        """
-        Get a list of posts of a particular user or belonging to a ticket. Use only one of the modes at the time.
-        """
-        if ticket and user:
-            return None
+    def search_post(self, ticket: int ) -> list:
 
-        if ticket:
-            search = self.session.query(Post).filer_by(ticket_id=ticket)
+        search = self.session.query(Post).filter_by(ticket_id=ticket).order_by(Post.timestamp.asc())
 
-        else:
-            search = self.session.query(Post).filer_by(author_id=user)
 
         return search
 
@@ -152,10 +144,11 @@ class DatabaseService:
         self.session.commit()
 
     @exception_handler
-    def save_ticket(self, ticket: Ticket):
+    def save_ticket(self, ticket: Ticket) -> int:
 
         self.session.add(ticket)
         self.session.commit()
+        return ticket.id
 
     @exception_handler
     def save_post(self, post: Post):
@@ -170,4 +163,6 @@ class DatabaseService:
 
         self.session.add(rel)
         self.session.commit()
+
+
 

@@ -5,7 +5,6 @@ from Verification import verify_code
 from Models.User import User
 from Models.Ticket import Ticket
 from Models.Post import Post
-import json
 
 
 app = Flask(__name__)
@@ -25,7 +24,23 @@ class GetUser(Resource):
 
         payload = data['payload']
 
-        result = ds.get_user(payload['id'])
+        result = ds.get_user(payload['user_id'])
+        return result.to_json()
+
+
+class GetTicket(Resource):
+
+    def post(self):
+
+        data = request.get_json(force=True, silent=True)
+
+        # Validation
+        if not verify_code(data['secretkey']):
+            return abort(403, message="Incorrect authorization, access denied")
+
+        payload = data['payload']
+
+        result = ds.get_ticket(payload['ticket_id'])
         return result.to_json()
 
 
@@ -46,15 +61,13 @@ class GetTickets(Resource):
         else:
             result = ds.search_ticket(payload['user'])
 
-        final = ""
+        final = []
 
         for ticket in result:
 
-            final += ticket.to_json()
-            final += ','
+            final.append(ticket.to_json())
 
-        final = final[:-1]
-        return '[' + final + ']'
+        return final
 
 
 class GetUsers(Resource):
@@ -70,15 +83,13 @@ class GetUsers(Resource):
         payload = data['payload']
 
         result = ds.search_user(payload['id'])
-        final = ""
+        final = []
 
         for user in result:
-            final += user.to_json()
-            final += ','
 
-        final = final[:-1]
-        return '[' + final + ']'
+            final.append(user.to_json())
 
+        return final
 
 class GetPosts(Resource):
 
@@ -92,20 +103,17 @@ class GetPosts(Resource):
 
         payload = data['payload']
 
-        if 'ticket' in payload:
-            result = ds.search_post(ticket=payload['ticket'])
-        else:
-            result = ds.search_post(user=payload['user'])
 
-        final = ""
+        result = ds.search_post(ticket=payload['ticket'])
 
-        for item in result:
-            final += item.to_json()
-            final += ','
+        final = []
 
-        final = final[:-1]
-        return '[' + final + ']'
+        for post in result:
+            item = post.to_json()
+            item['user'] = ds.get_user(post.author_id).to_json()
+            final.append(item)
 
+        return final
 
 class SaveUser(Resource):
 
@@ -126,7 +134,7 @@ class SaveUser(Resource):
 
 class SaveTicket(Resource):
 
-    def post(self, raw_data):
+    def post(self):
 
         data = request.get_json(force=True, silent=True)
 
@@ -137,8 +145,8 @@ class SaveTicket(Resource):
         payload = data['payload']
         ticket = Ticket.from_json(payload)
 
-        ds.save_ticket(ticket)
-        return
+        id = ds.save_ticket(ticket)
+        return id
 
 
 class SavePost(Resource):
@@ -178,6 +186,7 @@ class ValidateUser(Resource):
 
     def post(self):
 
+
         data = request.get_json(force=True, silent=True)
 
         # Validation
@@ -189,17 +198,17 @@ class ValidateUser(Resource):
         if 'email' not in payload:
             user_id, valid_password = ds.validate_user(payload['password'], login=payload['login'])
             result = {'user_id': user_id, 'valid_password': valid_password}
-            return json.dumps(result)
+            return result
 
         elif 'login' not in payload:
             user_id, valid_password = ds.validate_user(payload['password'], email=payload['email'])
             result = {'user_id': user_id, 'valid_password': valid_password}
-            return json.dumps(result)
+            return result
 
         else:
             user_id, valid_password = ds.validate_user(payload['password'], login=payload['login'], email=payload['email'])
             result = {'user_id': user_id, 'valid_password': valid_password}
-            return json.dumps(result)
+            return result
 
 
 class StrSearchUsers(Resource):
@@ -208,6 +217,9 @@ class StrSearchUsers(Resource):
 
         data = request.get_json(force=True, silent=True)
 
+
+
+
         # Validation
         if not verify_code(data['secretkey']):
             return abort(403, message="Incorrect authorization, access denied")
@@ -215,17 +227,18 @@ class StrSearchUsers(Resource):
         payload = data['payload']
 
         result = ds.str_search_user(payload['text'])
-        final = ""
+        final = []
 
         for user in result:
-            final += user.to_json()
-            final += ','
 
-        final = final[:-1]
-        return '[' + final + ']'
+            final.append(user.to_json())
+
+        return final
+
 
 
 api.add_resource(GetUser, '/getuser')
+api.add_resource(GetTicket, '/getticket')
 api.add_resource(GetUsers, '/getusers')
 api.add_resource(GetTickets, '/gettickets')
 api.add_resource(GetPosts, '/getposts')
@@ -235,5 +248,6 @@ api.add_resource(SavePost, '/savepost')
 api.add_resource(SaveRelationship, '/saverelation')
 api.add_resource(ValidateUser, '/validateuser')
 api.add_resource(StrSearchUsers, '/strsearchusers')
+
 
 

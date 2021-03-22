@@ -1,6 +1,7 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Integer, DateTime
-from sqlalchemy.orm import relationship
+from .dates import datetime_to_str, str_to_datetime
+
 
 Base = declarative_base()
 
@@ -23,18 +24,17 @@ class Ticket(Base):
 
     def to_json(self):
 
-        result = f' "title": "{self.title}", "status": "{self.password}", "deadline": "{self.deadline}", ' \
-                 f'"id": "{self.id}"'
+        result = {"title": self.title, "status": self.status, "deadline": datetime_to_str(self.deadline),"id": self.id }
 
-        return '{' + result + '}'
+        return result
 
     @staticmethod
     def from_json(json_data):
 
         if 'id' in json_data:
-            result = Ticket(json_data['title'], json_data['deadline'], json_data['status'], json_data['id'])
+            result = Ticket(json_data['title'], str_to_datetime(json_data['deadline']), json_data['status'], json_data['id'])
         else:
-            result = Ticket(json_data['title'], json_data['deadline'], json_data['status'])
+            result = Ticket(json_data['title'], str_to_datetime(json_data['deadline']), json_data['status'])
 
         return result
 

@@ -26,10 +26,9 @@ class User(Base):
 
     def to_json(self):
 
-        result = f' "login": "{self.login}", "password": "{self.password}", "name": "{self.name}", ' \
-                 f'"position": "{self.position}", "email": "{self.email}", "picture": "{self.picture}"'
+        result = {"login": self.login, "password": self.password, "name": self.name, "position": self.position, "email": self.email, "picture": self.picture, 'id': self.id }
 
-        return '{' + result + '}'
+        return result
 
     @staticmethod
     def from_json(json_data):
