@@ -11,6 +11,8 @@ This is the backend of a Ticketing System App.
 
 It uses SQLAlchemy to communicate with the database locally and a REST API to communicate with the frontend. 
 
+The service is hosted on pythonanywhere. 
+
 ## Technology
 
 
