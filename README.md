@@ -37,7 +37,7 @@ ConfigParser - Loading config information
 
 You can interact with the endpoints of the system using a request like the snippet below 
 
-'''
+```
 {
 	"secretkey": "dskjfkjawnvciuwhvbiu0qewgry0uhgbnb0ziuxcve2",
 	"payload": {
@@ -46,15 +46,15 @@ You can interact with the endpoints of the system using a request like the snipp
 	  "email" : "pawelkirszniok@gmail.com"
 	}
 }
-'''
 
+```
 you need to pass a dictionary with the secretkey and payload variables. 
 
 Payload will be a dictionary containing whatever data is required by the endpoint. 
 
 You can find the list of endpoints below: 
 
-'''
+```
 
 get_user = http://tb.pawelkirszniok.com/getuser
 get_ticket = http://tb.pawelkirszniok.com/getticket
@@ -68,4 +68,4 @@ save_relation = http://tb.pawelkirszniok.com/saverelation
 validate_user = http://tb.pawelkirszniok.com/validateuser
 str_search_users = http://tb.pawelkirszniok.com/strsearchusers
 
-'''
+```
