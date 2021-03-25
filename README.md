@@ -17,7 +17,6 @@ It uses SQLAlchemy to communicate with the database locally and a REST API to co
 ### 1 - Basics
 
 Python
-Html 
 
 ### 2 -  Used to create the API 
 
