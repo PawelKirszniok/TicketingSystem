@@ -64,13 +64,35 @@ class DatabaseService:
         result = []
         for item in search:
             if item.ticket_id not in result:
-                result.append(item.ticket_id)
+                result.append((item.ticket_id, item.user_role))
 
         search_result = []
-        for id in result:
+        for id, role in result:
             tmp = self.get_ticket(id)
             if tmp:
-                search_result.append(tmp)
+                search_result.append((tmp,role))
+
+        return search_result
+
+    @exception_handler
+    def search_ticket_ordered_by_role(self, user: int, role: str = None) -> list:
+
+        if role:
+            search = self.session.query(Ticket_to_User).filter_by(user_id=user, user_role=role).order_by(Ticket_to_User.user_role.asc())
+
+        else:
+            search = self.session.query(Ticket_to_User).filter_by(user_id=user).order_by(Ticket_to_User.user_role.asc())
+
+        result = []
+        for item in search:
+            if item.ticket_id not in result:
+                result.append((item.ticket_id, item.user_role))
+
+        search_result = []
+        for id, role in result:
+            tmp = self.get_ticket(id)
+            if tmp:
+                search_result.append((tmp,role))
 
         return search_result
 
@@ -118,11 +140,11 @@ class DatabaseService:
     @exception_handler
     def str_search_user(self, text: str) -> list:
 
-        search_term = '*'+ text + '*'
+        search_term = '%'+ text + '%'
 
-        search = self.session.query(User).filter_by(User.name.op('regexp')(search_term)).all()
-        search += self.session.query(User).filter_by(User.email.op('regexp')(search_term)).all()
-        search += self.session.query(User).filter_by(User.position.op('regexp')(search_term)).all()
+        search = self.session.query(User).filter(User.name.like(search_term)).all()
+        search += self.session.query(User).filter(User.email.like(search_term)).all()
+        search += self.session.query(User).filter(User.position.like(search_term)).all()
 
         if len(search):
             return search[0]
@@ -148,6 +170,7 @@ class DatabaseService:
 
         self.session.add(ticket)
         self.session.commit()
+
         return ticket.id
 
     @exception_handler
@@ -164,5 +187,10 @@ class DatabaseService:
         self.session.add(rel)
         self.session.commit()
 
+    @exception_handler
+    def update(self):
 
+        self.session.commit()
+
+        return ticket.id
 

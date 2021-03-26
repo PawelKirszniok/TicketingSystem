@@ -4,6 +4,7 @@ from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, String
 from .Ticket import Ticket
 from .User import User
 from .dates import datetime_to_str
+import logging
 
 Base = declarative_base()
 
@@ -40,6 +41,7 @@ class Post(Base):
         if 'id' in json_data:
             result = Post(json_data['ticket_id'], json_data['author_id'], json_data['content'], json_data['id'], json_data['status_change'])
         else:
-            result = Post(json_data['ticket_id'], json_data['author_id'], json_data['content'], json_data['status_change'])
+            logging.info(json_data)
+            result = Post(json_data['ticket_id'], json_data['author_id'], json_data['content'], status_change=json_data['status_change'])
 
         return result

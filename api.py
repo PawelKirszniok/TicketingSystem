@@ -5,11 +5,14 @@ from Verification import verify_code
 from Models.User import User
 from Models.Ticket import Ticket
 from Models.Post import Post
-
+from manager import RelationManager
+import logging
 
 app = Flask(__name__)
 api = Api(app)
 ds = DatabaseService()
+rm = RelationManager(ds)
+
 
 
 class GetUser(Resource):
@@ -55,17 +58,37 @@ class GetTickets(Resource):
             return abort(403, message="Incorrect authorization, access denied")
 
         payload = data['payload']
+        if 'order_by' in payload:
+            if payload['order_by'] ==  'role':
+                logging.info('Tickets have to be ordered')
 
-        if 'role' in payload:
-            result = ds.search_ticket(payload['user'], payload['role'])
+                if 'role' in payload:
+                    result = ds.search_ticket_ordered_by_role(payload['user'], payload['role'])
+                else:
+                    result = ds.search_ticket_ordered_by_role(payload['user'])
         else:
-            result = ds.search_ticket(payload['user'])
+            if 'role' in payload:
+                result = ds.search_ticket(payload['user'], payload['role'])
+            else:
+                result = ds.search_ticket(payload['user'])
 
         final = []
 
-        for ticket in result:
 
-            final.append(ticket.to_json())
+        for ticket, role in result:
+            if payload['closed']:
+                if ticket.status == 'Completed':
+                    item = ticket.to_json()
+                    item['role'] = role
+                    final.append(item)
+
+            else:
+                if ticket.status != 'Completed':
+                    item = ticket.to_json()
+                    item['role'] = role
+
+                    final.append(item)
+
 
         return final
 
@@ -145,7 +168,9 @@ class SaveTicket(Resource):
         payload = data['payload']
         ticket = Ticket.from_json(payload)
 
+
         id = ds.save_ticket(ticket)
+        rm.assign_developer(id)
         return id
 
 
@@ -161,8 +186,14 @@ class SavePost(Resource):
 
         payload = data['payload']
         post = Post.from_json(payload)
-
+        logging.info(payload)
+        if post.status_change:
+            logging.info("im in")
+            ticket = ds.get_ticket(post.ticket_id)
+            ticket.status=post.status_change
+            ds.session.commit()
         ds.save_post(post)
+
         return
 
 
@@ -227,13 +258,8 @@ class StrSearchUsers(Resource):
         payload = data['payload']
 
         result = ds.str_search_user(payload['text'])
-        final = []
 
-        for user in result:
-
-            final.append(user.to_json())
-
-        return final
+        return result.to_json()
 
 
 
